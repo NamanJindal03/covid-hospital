@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema({
+  //referring doctor and patient db so that we can tell this report is associated to what patient and doctor
   doctor: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -14,6 +15,7 @@ const reportSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
+    //only allows values from this array
     enum: ['Negative', 'Travelled-Quarantine', 'Symptoms-Quarantine', 'Positive-Admit']
   },
   date : {

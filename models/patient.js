@@ -5,6 +5,7 @@ const patientSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  //refering the reports db in here so that we can have all reports of a patient together
   reports: [
     {
       type: mongoose.Schema.Types.ObjectId,

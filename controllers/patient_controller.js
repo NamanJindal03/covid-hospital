@@ -1,5 +1,7 @@
 const Patient = require('../models/patient');
 const Report = require('../models/report');
+
+//registers a new patient if already exist then send its details
 module.exports.register = async (req,res) =>{
     const {mobile } = req.body;
     try{
@@ -7,6 +9,7 @@ module.exports.register = async (req,res) =>{
 
         //if the patient is found we dont need to register and we will send his details
         if(patient){
+            //populating the oatient with some specifs from report
             patient = await patient.populate('reports', '_id , doctor , patient , status , date').execPopulate();
             return res.status(200).json({
               message: "Patient details",
@@ -30,6 +33,7 @@ module.exports.register = async (req,res) =>{
     }
 }
 
+//create a report for the user with a random association with covid
 module.exports.createReport = async (req, res) =>{
     try{
         let patient = await Patient.findById(req.params.id, function(err){
@@ -40,17 +44,19 @@ module.exports.createReport = async (req, res) =>{
                 });
             }   
         })
-
+        //these are the only values which are allowed to be within status field as an enum has been defined
         let statusArray = ['Negative', 'Travelled-Quarantine', 'Symptoms-Quarantine', 'Positive-Admit'];
+        //randomly picks one
         let status = statusArray[Math.floor(Math.random() * statusArray.length)];
         let date = new Date().toJSON().slice(0,10).toString();
+        //creating a new report
         let report = await Report.create({
             doctor: req.auth._id,
             patient: patient._id,
             status: status,
             date: date
         });
-
+        //pushing this report in the patient's reports
         patient.reports.push(report.id);
         patient.save();
         return res.status(200).json({
@@ -65,8 +71,11 @@ module.exports.createReport = async (req, res) =>{
           });
     }
 }
+
+//gives all reports of a specific patient
 module.exports.allReports = async (req,res) =>{
     try{
+        //req.params.id - the frontend passes the id of the patient for which we need to generate all the reports
         let patient = await Patient.findById(req.params.id, function(err){
             if(err){
                 console.log(err);
@@ -75,7 +84,9 @@ module.exports.allReports = async (req,res) =>{
                 });
             }   
         })
+        //sort according to the date of creation
         .sort('-createdAt')
+        //performing nested population with some specific data
         .populate({
           path: 'reports',
           select: 'doctor status date',

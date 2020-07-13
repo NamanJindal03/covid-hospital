@@ -2,12 +2,14 @@ const Doctor = require('../models/doctor');
 const {check, validationResult } = require("express-validator");
 const jwt = require('jsonwebtoken');
 const expressJwt  = require('express-jwt');
+
+//to access environment variables
 require('dotenv').config();
+
+//registers a new doctor
 module.exports.register = (req, res) =>{
     
-    // res.json({
-    //     message: "successful"
-    // })
+    //brings out all the error if any 
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         return res.status(422).json({
@@ -23,11 +25,13 @@ module.exports.register = (req, res) =>{
         return res.status(404).json({  message: "pass do not match"});
     }
 
+    //tries to find if doctor already exist
     Doctor.findOne({email: req.body.email}, function(err,user){
         if(err){
             console.log(err);
             return res.status(404).json({ status: 404, message: "There is an error in finding user in db"});
         }
+        //if doctor doesnt exist creates a new doctor
         if(!user){
             Doctor.create(req.body, function(err,user){
                 if(err){
@@ -36,24 +40,28 @@ module.exports.register = (req, res) =>{
                 }
                 return res.status(200).json({  message: "doctor succesfully registered"});
             })
-        }else{
+        }
+        //else it returns that you are already registered
+        else{
             return res.status(404).json({ message: "doctor already registered"});
         }
 
     })
 }
+
+//sign in the doctor
 module.exports.login = (req,res) =>{
-    console.log("in login controller");
     const {email, password} = req.body;
     Doctor.findOne({email}, function(err, user){
         if(err){
             return res.status(400).json({error: "User doesnt exist"})
         }
-
+        //if the doctor doesnt exist or the password dont match return error
         if(!user || user.password!=password){
             return res.status(400).json({error: "Invalid Username/Password"})
         }
 
+        //if doctor exist we 
         //create token
         //default encryption algogrithm = HMAC SHA 256
         const token = jwt.sign({ _id: user._id}, process.env.JWTSECRET, {algorithm: 'HS256'});
@@ -80,10 +88,3 @@ module.exports.isSignedIn = expressJwt({
     userProperty: "auth"
     
 });
-
-
-//custom middlewares 
-module.exports.isAuthenticated = (req, res, next) =>{
-    
-    next();
-}

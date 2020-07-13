@@ -2,12 +2,14 @@ const Report = require('../models/report');
 module.exports.reportsWithStatus = async (req, res)=>{
     try{
         let statusArray = ['Negative', 'Travelled-Quarantine', 'Symptoms-Quarantine', 'Positive-Admit'];
+        //checks if the status provided is a valid status or not
         if(statusArray.indexOf(req.params.status) == -1){
           return res.status(401).json({
             message: "Invalid details"
           });
         }
         let reports = await Report.find({status: req.params.status}, 'doctor patient status date')
+        //populating data fromdoctor and patient
           .populate({
             path: 'doctor',
             select: 'name , _id'
