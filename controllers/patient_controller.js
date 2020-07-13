@@ -7,7 +7,7 @@ module.exports.register = async (req,res) =>{
 
         //if the patient is found we dont need to register and we will send his details
         if(patient){
-            patient = patient.populate('Report');
+            patient = await patient.populate('reports').execPopulate();
             return res.status(200).json({
               message: "Patient details",
               patient: patient
@@ -56,6 +56,39 @@ module.exports.createReport = async (req, res) =>{
         return res.status(200).json({
             message: "Report created successfully",
             report: report
+        });
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).json({
+            message: "Internal Server Error"
+          });
+    }
+}
+module.exports.allReports = async (req,res) =>{
+    try{
+        let patient = await Patient.findById(req.params.id, function(err){
+            if(err){
+                console.log(err);
+                return res.status(401).json({
+                    message: "Invalid details"
+                });
+            }   
+        })
+        .sort('-createdAt')
+        .populate({
+          path: 'reports',
+          select: 'doctor status date',
+          populate:{
+              path: 'doctor',
+              select: 'name'
+          }
+        })
+        //if patient found send his reports
+        return res.status(200).json({
+          mobile: patient.mobile,
+          message: "All Reports of fetched" ,
+          reports: patient.reports
         });
     }
     catch(err){
