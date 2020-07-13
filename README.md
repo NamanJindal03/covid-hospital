@@ -71,8 +71,8 @@ You can find all the routes in here
 # Directory Structure 
 This Application follows MVC Architecture
 
-2. Config - Containes configuration files for database(mongoose)
-3. Controllers - Core logic(contains functions and renders views)
-4. models - schema for databases are defined in here
-5. routes - contains all routes defined in the application
+1. Config - Containes configuration files for database(mongoose)
+2. Controllers - Core logic(contains functions and renders views)
+3. models - schema for databases are defined in here
+4. routes - contains all routes defined in the application
 
