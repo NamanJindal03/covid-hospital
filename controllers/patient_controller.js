@@ -7,7 +7,7 @@ module.exports.register = async (req,res) =>{
 
         //if the patient is found we dont need to register and we will send his details
         if(patient){
-            patient = await patient.populate('reports').execPopulate();
+            patient = await patient.populate('reports', '_id , doctor , patient , status , date').execPopulate();
             return res.status(200).json({
               message: "Patient details",
               patient: patient
